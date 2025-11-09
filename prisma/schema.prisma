@@ -1,0 +1,183 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  username    String   @unique
+  email       String?  @unique
+  passwordHash String  @map("password_hash")
+  role        UserRole @default(OPERATOR)
+  isActive    Boolean  @default(true) @map("is_active")
+  lastLogin   DateTime? @map("last_login")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Permissões granulares
+  permissions   UserPermissions[] @relation("UserPermissions")
+  
+  // Relacionamentos
+  createdEquipments Equipment[] @relation("EquipmentCreator")
+  createdShipments  Shipment[] @relation("ShipmentCreator")
+  auditLogs         AuditLog[]
+  
+  @@map("users")
+}
+
+model Equipment {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  serialNumber String?  @map("serial_number")
+  type         String
+  brand        String
+  model        String
+  location     String
+  status       String // em_estoque, enviado, manutencao, devolvido
+  acquisitionDate DateTime? @map("acquisition_date")
+  observations String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  createdBy    String?  @map("created_by")
+  
+  // Relacionamentos
+  creator      User?    @relation("EquipmentCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  shipments    ShipmentEquipment[]
+  histories    EquipmentHistory[]
+  
+  @@map("equipments")
+}
+
+model Shipment {
+  id              String   @id @default(cuid())
+  shipmentNumber  String   @unique @map("shipment_number")
+  origin          String
+  destination     String
+  responsible     String
+  carrier         String?
+  trackingCode    String?  @map("tracking_code")
+  status          String // preparando, enviado, entregue, cancelado
+  shipmentDate    DateTime @default(now()) @map("shipment_date")
+  expectedDate    DateTime? @map("expected_date")
+  deliveryDate    DateTime? @map("delivery_date")
+  observations    String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  createdBy       String?  @map("created_by")
+  
+  // Relacionamentos
+  creator         User?    @relation("ShipmentCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  equipments      ShipmentEquipment[]
+  histories       ShipmentHistory[]
+  
+  @@map("shipments")
+}
+
+model ShipmentEquipment {
+  id          String @id @default(cuid())
+  shipmentId  String @map("shipment_id")
+  equipmentId String @map("equipment_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  
+  @@unique([shipmentId, equipmentId])
+  @@map("shipment_equipments")
+}
+
+model EquipmentHistory {
+  id          String   @id @default(cuid())
+  equipmentId String   @map("equipment_id")
+  action      String
+  description String?
+  location    String?
+  responsible String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  
+  @@map("equipment_histories")
+}
+
+model ShipmentHistory {
+  id          String   @id @default(cuid())
+  shipmentId  String   @map("shipment_id")
+  action      String
+  description String?
+  responsible String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  
+  @@map("shipment_histories")
+}
+
+model ImportLog {
+  id          String   @id @default(cuid())
+  fileName    String   @map("file_name")
+  fileType    String   @map("file_type")
+  recordsCount Int     @map("records_count")
+  successCount Int     @map("success_count")
+  errorCount  Int     @map("error_count")
+  errors      String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  @@map("import_logs")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  action      String
+  entity      String // equipment, shipment, user, etc.
+  entityId    String?  @map("entity_id")
+  oldValues   String?  @map("old_values") // JSON
+  newValues   String?  @map("new_values") // JSON
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("audit_logs")
+}
+
+model UserPermissions {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  permission  String   // create_user, edit_user, delete_user, manage_permissions, view_reports, import_export, manage_system
+  description String? @map("description")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_permissions")
+}
+
+enum UserRole {
+  ADMIN
+  OPERATOR
+  VIEWER
+}
+
+enum Permission {
+  CREATE_USER
+  EDIT_USER
+  DELETE_USER
+  MANAGE_PERMISSIONS
+  VIEW_REPORTS
+  IMPORT_EXPORT
+  MANAGE_SYSTEM
+  ALL_ACCESS
+}

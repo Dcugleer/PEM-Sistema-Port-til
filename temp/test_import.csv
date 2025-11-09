@@ -1,0 +1,6 @@
+Código,Tipo,Marca,Modelo,Localização,Situação,Observações
+EQ006,Notebook,Lenovo,ThinkPad T14,Brasília,em_estoque,Novo na caixa
+EQ007,Monitor,Samsung,27" Curvo,Recife,em_estoque,Testado OK
+EQ008,Teclado,Logitech,MX Keys,Salvador,manutencao,Teclas com problema
+EQ009,Mouse,Logitech,MX Master 3,Porto Alegre,em_estoque,Usado mas em bom estado
+EQ010,Desktop,Dell,OptiPlex 7090,Belo Horizonte,enviado,Enviado para cliente final

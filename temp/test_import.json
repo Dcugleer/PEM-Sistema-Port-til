@@ -1,0 +1,20 @@
+[
+  {
+    "Código": "EQ011",
+    "Tipo": "Notebook",
+    "Marca": "Apple",
+    "Modelo": "MacBook Air M2",
+    "Localização": "São Paulo",
+    "Situação": "em_estoque",
+    "Observações": "Novo, ainda na caixa"
+  },
+  {
+    "Código": "EQ012",
+    "Tipo": "Monitor",
+    "Marca": "LG",
+    "Modelo": "UltraGear 27\"",
+    "Localização": "Rio de Janeiro",
+    "Situação": "enviado",
+    "Observações": "Enviado para cliente corporativo"
+  }
+]

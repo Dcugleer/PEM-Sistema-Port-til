@@ -39,7 +39,6 @@ export default function Home() {
     activeShipments: 0,
     deliveredShipments: 0
   })
-  })
   const [loading, setLoading] = useState(true)
   
   // Form states
@@ -266,15 +265,15 @@ export default function Home() {
           </div>
 
           {/* Main Content Tabs */}
-          <Tabs defaultValue="equipments" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4">
+            <Tabs defaultValue="equipments">
+            <TabsList>
               <TabsTrigger value="equipments">Equipamentos</TabsTrigger>
               <TabsTrigger value="shipments">Remessas</TabsTrigger>
               <TabsTrigger value="import-export">Import/Export</TabsTrigger>
               <TabsTrigger value="reports">Relatórios</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="equipments" className="space-y-4">
+            <TabsContent value="equipments">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Gerenciamento de Equipamentos</h2>
                 {hasPermission('create') && (
@@ -285,13 +284,12 @@ export default function Home() {
                 )}
               </div>
               <EquipmentList 
-                key={refreshKey}
                 onEdit={hasPermission('edit') ? handleEditEquipment : undefined}
                 onRefresh={refreshData}
               />
             </TabsContent>
             
-            <TabsContent value="shipments" className="space-y-4">
+            <TabsContent value="shipments">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Controle de Remessas</h2>
                 {hasPermission('create') && (
@@ -302,21 +300,20 @@ export default function Home() {
                 )}
               </div>
               <ShipmentList 
-                key={refreshKey}
                 onEdit={hasPermission('edit') ? handleEditShipment : undefined}
                 onReceive={hasPermission('edit') ? handleReceiveShipment : undefined}
                 onRefresh={refreshData}
               />
             </TabsContent>
             
-            <TabsContent value="import-export" className="space-y-4">
+            <TabsContent value="import-export">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Importação e Exportação</h2>
               </div>
               <ImportExport />
             </TabsContent>
             
-            <TabsContent value="reports" className="space-y-4">
+            <TabsContent value="reports">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Relatórios e Análises</h2>
                 <Button variant="outline">
@@ -333,7 +330,6 @@ export default function Home() {
               </Card>
             </TabsContent>
           </Tabs>
-        </Tabs>
 
         {/* Forms */}
         <EquipmentForm
@@ -357,6 +353,7 @@ export default function Home() {
           onCancel={() => setReceiveFormOpen(false)}
         />
       </div>
+    </div>
     </ProtectedRoute>
   )
 }
